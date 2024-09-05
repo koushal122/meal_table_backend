@@ -74,4 +74,8 @@ public class JwtUtils {
         }
         return false;
     }
+
+    public String getUserNameFromRequest(HttpServletRequest request){
+        return getUserNameFromJwtToken(getJwtFromHeader(request));
+    }
 }

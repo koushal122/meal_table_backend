@@ -7,10 +7,15 @@ import com.MealTable.meal_table.payloads.SignUpRequest;
 import com.MealTable.meal_table.response.LoginResponse;
 import com.MealTable.meal_table.service.UserService;
 import com.MealTable.meal_table.util.JwtUtils;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +23,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.File;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 @RestController
@@ -54,6 +65,13 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);
+        if(loginRequest.isAdmin()){
+            try{
+                userService.isUserAdmin(userDetails.getUsername());
+            }catch (Exception e){
+                return  ResponseEntity.status(401).body("You are not registered as Admin, please login as user");
+            }
+        }
         LoginResponse response = new LoginResponse(userDetails.getUsername(), jwtToken, userService.getUserNameFormEmail(userDetails.getUsername()));
         return ResponseEntity.ok(response);
     }
@@ -70,15 +88,16 @@ public class AuthController {
     }
 
     @PostMapping(value = "/create-admin")
-    public ResponseEntity<Object> createAdmin(@Valid @RequestBody AdminSignUpRequest adminSignUpRequest){
+    public ResponseEntity<Object> createAdmin(HttpServletRequest request, @Valid @RequestBody AdminSignUpRequest adminSignUpRequest){
         try {
             logger.info("Create admin user request for email {}", adminSignUpRequest.getUserEmail());
-            userService.isUserAdmin(adminSignUpRequest.getAdminEmail());
+            userService.isUserAdmin(jwtUtils.getUserNameFromJwtToken(jwtUtils.getJwtFromHeader(request)));
             User user=userService.createAdminUser(adminSignUpRequest);
             return ResponseEntity.status(200).body(user);
         } catch (Exception e) {
             return ResponseEntity.status(401).body(e.getMessage());
         }
     }
+
 
 }

@@ -1,20 +1,37 @@
 package com.MealTable.meal_table.service;
 
+import com.MealTable.meal_table.model.Seat;
 import com.MealTable.meal_table.model.TableEntity;
+import com.MealTable.meal_table.repository.SeatRepository;
 import com.MealTable.meal_table.repository.TableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class TableService {
     @Autowired
     TableRepository tableRepository;
+    @Autowired
+    SeatRepository seatRepository;
 
     public TableEntity createTable(int capacity){
         try {
-            return tableRepository.save(new TableEntity(capacity,capacity));
+            List<Seat> seats=new ArrayList<>();
+            TableEntity table=new TableEntity();
+            table.setCapacity(capacity);
+            tableRepository.save(table);
+            for(int cap=0;cap<capacity;cap++){
+                Seat newSeat=new Seat();
+                newSeat.setTable(table);
+                newSeat.setTabId(table.getId());
+                seats.add(newSeat);
+                seatRepository.save(newSeat);
+            }
+            table.setSeats(seats);
+            return tableRepository.save(table);
         }catch (Exception e){
             throw new RuntimeException("Unable to create table");
         }
@@ -22,25 +39,18 @@ public class TableService {
 
     public void deleteTable(int tableId){
         try {
+            TableEntity table=tableRepository.findById(tableId).orElseThrow(()->new RuntimeException("No table found"));
+            for(Seat seat:table.getSeats()){
+                seatRepository.deleteById(seat.getId());
+            }
             tableRepository.deleteById(tableId);
         }catch (Exception e){
             throw new RuntimeException("Unable to delete table with id "+tableId);
         }
     }
 
-    public void bookSeatsInTable(int id,int seats){
-        TableEntity table=tableRepository.findById(id).orElseThrow(()-> new RuntimeException("Table not found"));
-        int availableSeats=table.getAvailableSeats();
-        if(availableSeats<seats) throw new RuntimeException("Required number of seats is not available");
-        tableRepository.updateTableById(availableSeats-seats,id);
-    }
-
-    public void freeUpTableSeat(int id,int seat){
-        TableEntity table=tableRepository.findById(id).orElseThrow(()-> new RuntimeException("Table not found"));
-        int capacityOfTable=table.getCapacity();
-        if(capacityOfTable<seat) throw new RuntimeException("Invalid number of seats to free up for capacity "+capacityOfTable+" got "+seat);
-        int availableSeat=table.getAvailableSeats();
-        tableRepository.updateTableById(availableSeat+seat,id);
+    public List<TableEntity> getAllTables(){
+        return tableRepository.findAll();
     }
 
 }

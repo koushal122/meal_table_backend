@@ -1,55 +1,87 @@
 package com.MealTable.meal_table.model;
 
 
+import com.MealTable.meal_table.helper.ProductWithQuantity;
+import com.MealTable.meal_table.util.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-//@Entity
-//@Table(name = "orders")
+import java.util.ArrayList;
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "orders")
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
-    @Column(nullable = false)
-    private String orderDetails;
+    private long id;
 
     //foreign key point to id column of table user
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
-    public Order() {}
+    @Column(name = "orderStatus")
+    private OrderStatus orderStatus;
 
-    public Order(String orderDetails, User user) {
-        this.orderDetails = orderDetails;
-        this.user = user;
-    }
+    @ManyToOne()
+    @JoinColumn(name = "address_id", nullable = false)
+    private Address address;
 
-    // Getters and setters
-    public int getId() {
-        return id;
-    }
+    @Column(name = "deliveryNotes")
+    private String deliveryNotes;
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    @Column(name = "totalPrice")
+    private double totalPrice;
 
-    public String getOrderDetails() {
-        return orderDetails;
-    }
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderProductQuantity> orderProductQuantityList = new ArrayList<>();
 
-    public void setOrderDetails(String orderDetails) {
-        this.orderDetails = orderDetails;
-    }
+    @Column(name = "requestedTime")
+    private long requestedTime;
 
-    public User getUser() {
-        return user;
-    }
+    @Column(name = "orderConfirmed")
+    private long orderConfirmed;
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+    @Column(name = "orderDispatched")
+    private long orderDispatched;
+
+    @Column(name = "cancelRequested")
+    private long cancelRequested;
+
+    @Column(name = "cancelRejected")
+    private long cancelRejected;
+
+    @Column(name = "cancelApproved")
+    private long cancelApproved;
+
+    @Column(name = "returnRequested")
+    private long returnRequested;
+
+    @Column(name = "returnRejected")
+    private long returnRejected;
+
+    @Column(name = "returnApproved")
+    private long returnApproved;
+
+    @Column(name = "delivered")
+    private long delivered;
+
+    @Column(name = "outForPickUp")
+    private long outForPickUp;
+
+    @Column(name = "returned")
+    private long returned;
+
 }
 

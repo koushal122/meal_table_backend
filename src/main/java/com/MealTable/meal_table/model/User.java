@@ -21,6 +21,7 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Size(min = 8,message = "Username should be minimum 8 character")
     @Column(nullable = false)
     private String userName;
@@ -35,6 +36,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     @JsonIgnore
     private String password;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Address> addresses;
 
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private Set<Review> reviews = new HashSet<>();
@@ -137,4 +141,13 @@ public class User implements UserDetails {
 //    public void setOrders(Set<Order> orders) {
 //        this.orders = orders;
 //    }
+
+
+    public List<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
+    }
 }

@@ -3,10 +3,13 @@ package com.MealTable.meal_table.service;
 
 import com.MealTable.meal_table.exceptions.UserAlreadyExist;
 import com.MealTable.meal_table.exceptions.UserNotFoundException;
+import com.MealTable.meal_table.model.Address;
 import com.MealTable.meal_table.model.User;
 import com.MealTable.meal_table.payloads.AdminSignUpRequest;
 import com.MealTable.meal_table.payloads.SignUpRequest;
 import com.MealTable.meal_table.repository.UserRepository;
+import com.MealTable.meal_table.util.JwtUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,8 @@ public class UserService {
     UserRepository userRepository;
     @Autowired
     PasswordEncoder passwordEncoder;
+    @Autowired
+    JwtUtils jwtUtils;
 
     public List<User> getUsers(){
         return userRepository.findAll();
@@ -70,4 +75,24 @@ public class UserService {
         return  user.getUserName();
     }
 
+    public boolean isAdminRequest(HttpServletRequest request){
+        isUserAdmin(jwtUtils.getUserNameFromJwtToken(jwtUtils.getJwtFromHeader(request)));
+        return true;
+    }
+
+    public User getUser(String userEmail){
+        return userRepository.findByUserEmail(userEmail).orElseThrow(()->new RuntimeException("User Not found"));
+    }
+
+    public List<Address> getAllAddresses(String userEmail){
+        User user=getUser(userEmail);
+        return user.getAddresses();
+    }
+
+    public void addAddress(User user,Address address){
+        List<Address> previousAddress=user.getAddresses();
+        previousAddress.add(address);
+        user.setAddresses(previousAddress);
+        userRepository.save(user);
+    }
 }

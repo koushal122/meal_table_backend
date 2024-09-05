@@ -1,9 +1,13 @@
 package com.MealTable.meal_table.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "cart")
 public class Cart {
@@ -15,10 +19,16 @@ public class Cart {
     @Column(nullable = false)
     private int numberOfItems;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    //here user is another table and user_id is foreign key referencing
+    //primary key of user table. This we need because we have specified relationship
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    //here because relationship is many to many that's why
+    //we have created another table whose name will be cart_product and there will be
+    //two foreign key in table one is cart_id point to current cart table
+    //and another is product_id point to primary key of product table.
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "cart_products",
@@ -27,6 +37,10 @@ public class Cart {
     )
     private Set<Product> products = new HashSet<>();
 
+    //here we used element collection because jpa can handle only basic datatype such has int,string etc..
+    //but for complex data type such as collection we need to create another table like below we have created.
+    //custom table named cart_product_entity and there will be foreign key cart_id and product_id and also there will
+    //another column quantity.
     @ElementCollection
     @CollectionTable(name = "cart_product_quantity", joinColumns = @JoinColumn(name = "cart_id"))
     @MapKeyColumn(name = "product_id")
@@ -36,51 +50,4 @@ public class Cart {
     @Column(nullable = false)
     private double totalPrice;
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getNumberOfItems() {
-        return numberOfItems;
-    }
-
-    public void setNumberOfItems(int numberOfItems) {
-        this.numberOfItems = numberOfItems;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Set<Product> getProducts() {
-        return products;
-    }
-
-    public void setProducts(Set<Product> products) {
-        this.products = products;
-    }
-
-    public Map<Integer, Integer> getProductQuantityWithId() {
-        return productQuantityWithId;
-    }
-
-    public void setProductQuantityWithId(Map<Integer, Integer> productQuantityWithId) {
-        this.productQuantityWithId = productQuantityWithId;
-    }
-
-    public double getTotalPrice() {
-        return totalPrice;
-    }
-
-    public void setTotalPrice(double totalPrice) {
-        this.totalPrice = totalPrice;
-    }
 }

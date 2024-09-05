@@ -51,6 +51,10 @@ public class SecurityConfig {
                 authorizeRequests.requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/booking/available-tables").permitAll()
+                        .requestMatchers("/api/products/get-all-products").permitAll()
+                        .requestMatchers("/api/products/type/**").permitAll()
+                        .requestMatchers("/api/products/get-all-tags").permitAll()
+                        .requestMatchers("/images/**").permitAll()
                         .anyRequest().authenticated());
         http.sessionManagement(
                 session ->

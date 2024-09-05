@@ -23,11 +23,11 @@ public class CartService {
         return cartRepository.findByUser(user).orElse(new Cart());
     }
 
-    public Cart addProductToCart(User user, int productId, int quantity) {
+    public Cart addProductToCart(User user, int productId) {
         Cart cart = getCartByUser(user);
         Product product = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("Product not found"));
         cart.getProducts().add(product);
-        cart.getProductQuantityWithId().put(productId, cart.getProductQuantityWithId().getOrDefault(productId, 0) + quantity);
+        cart.getProductQuantityWithId().put(productId, 1);
         cart.setTotalPrice(calculateTotalPrice(cart));
         cart.setNumberOfItems(cart.getProducts().size());
         cart.setUser(user);
@@ -65,6 +65,12 @@ public class CartService {
 
     public List<Cart> getAllCartsByUser(User user) {
         return cartRepository.findAllByUser(user);
+    }
+
+    public void deleteCart(Cart cart) {
+        cart.getProducts().clear();
+        cart.getProductQuantityWithId().clear();
+        cartRepository.deleteById(cart.getId());
     }
 }
 

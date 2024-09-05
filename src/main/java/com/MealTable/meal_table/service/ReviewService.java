@@ -23,13 +23,16 @@ public class ReviewService {
         return reviewRepository.findTop10ByOrderByRatingDesc();
     }
 
-    public Review addReview(Review review) {
-        return reviewRepository.save(review);
+    public Review addReview(double rating,String review,User user) {
+        Review reviewObj=new Review();
+        reviewObj.setUser(user);
+        reviewObj.setRating(rating);
+        reviewObj.setReview(review);
+        return reviewRepository.save(reviewObj);
     }
 
-    public List<Review> getAllReviewsForUser(String userEmail) {
-        userRepository.findByUserEmail(userEmail).orElseThrow(() -> new UserNotFoundException("User not found with email: " + userEmail));
-        return reviewRepository.findByUserEmail(userEmail);
+    public List<Review> getAllReviewsForUser(User user) {
+        return reviewRepository.findByUser(user);
     }
 
     public List<Review> getLowestReviews() {

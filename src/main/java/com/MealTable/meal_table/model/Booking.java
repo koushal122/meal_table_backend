@@ -1,11 +1,19 @@
 package com.MealTable.meal_table.model;
 
 
+import com.MealTable.meal_table.util.BookingStatus;
+import com.MealTable.meal_table.util.PaymentStatus;
 import jakarta.persistence.*;
-
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.util.List;
 
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
 @Entity
 @Table(name = "bookings")
 public class Booking {
@@ -14,99 +22,36 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    private List<List<Integer>> tableIdsWithSeats;
 
     @Column(nullable = false)
     private int seats;
 
     @Column(nullable = false)
-    private LocalDateTime startTime;
+    private long startTime;
 
     @Column(nullable = false)
-    private LocalDateTime endTime;
+    private long endTime;
 
     @Column(nullable = false)
-    private String status;
+    private BookingStatus status;
 
     @Column(nullable = false)
-    private double paymentAmount;
+    private double amountPaid;
 
     @Column(nullable = false)
-    private String paymentStatus; // e.g., PAID, REFUNDED
+    private double totalAmount;
 
-    public int getId() {
-        return id;
-    }
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id")
+    private List<Seat> seatsBooked;
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    @Column(name = "paymentStatus")
+    private PaymentStatus paymentStatus;
 
-    public User getUser() {
-        return user;
-    }
+    @Column(name = "phoneNumber")
+    private long phoneNumber;
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public List<List<Integer>> getTableIdsWithSeats() {
-        return tableIdsWithSeats;
-    }
-
-    public void setTableIdsWithSeats(List<List<Integer>> tableIdsWithSeats) {
-        this.tableIdsWithSeats = tableIdsWithSeats;
-    }
-
-    public int getSeats() {
-        return seats;
-    }
-
-    public void setSeats(int seats) {
-        this.seats = seats;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public double getPaymentAmount() {
-        return paymentAmount;
-    }
-
-    public void setPaymentAmount(double paymentAmount) {
-        this.paymentAmount = paymentAmount;
-    }
-
-    public String getPaymentStatus() {
-        return paymentStatus;
-    }
-
-    public void setPaymentStatus(String paymentStatus) {
-        this.paymentStatus = paymentStatus;
-    }
 }

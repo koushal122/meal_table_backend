@@ -2,10 +2,19 @@ package com.MealTable.meal_table.model;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
 
 
-
+@Setter
+@Getter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "tables")
 public class TableEntity {
 
@@ -16,38 +25,7 @@ public class TableEntity {
     @Column(nullable = false)
     private int capacity;
 
-    @Column(nullable = false)
-    private int availableSeats;
+    @OneToMany(mappedBy = "table", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Seat> seats;
 
-    public TableEntity() {
-    }
-
-    public TableEntity(int capacity, int availableSeats) {
-        this.capacity = capacity;
-        this.availableSeats = availableSeats;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
-    }
-
-    public int getAvailableSeats() {
-        return availableSeats;
-    }
-
-    public void setAvailableSeats(int availableSeats) {
-        this.availableSeats = availableSeats;
-    }
 }

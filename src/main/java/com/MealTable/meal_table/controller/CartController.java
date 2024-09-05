@@ -4,6 +4,8 @@ import com.MealTable.meal_table.model.Cart;
 import com.MealTable.meal_table.model.User;
 import com.MealTable.meal_table.service.CartService;
 import com.MealTable.meal_table.service.UserService;
+import com.MealTable.meal_table.util.JwtUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,25 +21,32 @@ public class CartController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+
     @PostMapping("/add")
-    public ResponseEntity<Cart> addProductToCart(@RequestParam String userEmail, @RequestParam int productId, @RequestParam int quantity) {
-        User user = userService.findUserByEmail(userEmail);
-        Cart updatedCart = cartService.addProductToCart(user, productId, quantity);
+    public ResponseEntity<Cart> addProductToCart(HttpServletRequest request, @RequestParam int productId) {
+        User user = userService.findUserByEmail(jwtUtils.getUserNameFromRequest(request));
+        Cart updatedCart = cartService.addProductToCart(user, productId);
         return new ResponseEntity<>(updatedCart, HttpStatus.OK);
     }
 
     @PostMapping("/update")
-    public ResponseEntity<Cart> updateProductQuantity(@RequestParam String userEmail, @RequestParam int productId, @RequestParam int quantity) {
-        User user = userService.findUserByEmail(userEmail);
+    public ResponseEntity<Cart> updateProductQuantity(HttpServletRequest request,@RequestParam int productId, @RequestParam int quantity) {
+        User user = userService.findUserByEmail(jwtUtils.getUserNameFromRequest(request));
         Cart updatedCart = cartService.updateProductQuantity(user, productId, quantity);
         return new ResponseEntity<>(updatedCart, HttpStatus.OK);
     }
 
     @DeleteMapping("/remove")
-    public ResponseEntity<Cart> removeProductFromCart(@RequestParam String userEmail, @RequestParam int productId) {
-        User user = userService.findUserByEmail(userEmail);
-        Cart updatedCart = cartService.removeProductFromCart(user, productId);
-        return new ResponseEntity<>(updatedCart, HttpStatus.OK);
+    public ResponseEntity<Object> removeProductFromCart(HttpServletRequest request, @RequestParam int productId) {
+        try {
+            String userEmail= jwtUtils.getUserNameFromJwtToken(jwtUtils.getJwtFromHeader(request));
+            User user = userService.findUserByEmail(userEmail);
+            Cart updatedCart = cartService.removeProductFromCart(user, productId);
+            return new ResponseEntity<>(updatedCart, HttpStatus.OK);
+        }catch (Exception e){ return ResponseEntity.status(401).body(e.getMessage());}
+
     }
 
     @GetMapping("/items")

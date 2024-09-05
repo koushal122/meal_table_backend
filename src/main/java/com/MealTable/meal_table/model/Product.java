@@ -1,7 +1,12 @@
 package com.MealTable.meal_table.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "products")
 public class Product {
@@ -22,44 +27,18 @@ public class Product {
     @Column(nullable = false)
     private double price;
 
-    public int getId() {
-        return id;
-    }
+    @Column(nullable = true)
+    private String imagePath;
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
+    public Product(String type, String name, String description, double price) {
         this.type = type;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
         this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
         this.description = description;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
         this.price = price;
     }
+
+    public Product() {
+    }
+
 }
 
