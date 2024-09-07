@@ -40,6 +40,28 @@ public class User implements UserDetails {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Address> addresses;
 
+    @Column(name = "can_create_admin",columnDefinition = "boolean default false")
+    private boolean canCreateAdmin;
+
+    @Column(name = "created_by")
+    private String createdBy;
+
+    public boolean getCanCreateAdmin() {
+        return canCreateAdmin;
+    }
+
+    public void setCanCreateAdmin(boolean canCreateAdmin) {
+        this.canCreateAdmin = canCreateAdmin;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private Set<Review> reviews = new HashSet<>();
 //

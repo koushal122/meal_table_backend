@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,19 +42,21 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User createAdminUser(AdminSignUpRequest adminSignUpRequest){
-        if(isUserAlreadyRegistered(adminSignUpRequest.getUserEmail())) throw new UserAlreadyExist("User Already Registered with email "+adminSignUpRequest.getUserEmail());
+    public User createAdminUser(AdminSignUpRequest adminSignUpRequest,String requestedAdminEmail) throws UserAlreadyExist{
+        if(isUserAlreadyRegistered(adminSignUpRequest.getNewAdminEmail())) throw new UserAlreadyExist("User Already Registered with email "+adminSignUpRequest.getNewAdminEmail());
         User user=new User();
         user.setRole("ADMIN");
-        user.setUserEmail(adminSignUpRequest.getUserEmail());
-        user.setUserName(adminSignUpRequest.getUserName());
+        user.setUserEmail(adminSignUpRequest.getNewAdminEmail());
+        user.setUserName(adminSignUpRequest.getAdminName());
+        user.setCreatedBy(requestedAdminEmail);
+        user.setCanCreateAdmin(adminSignUpRequest.isCanCreateAdmin());
         user.setPassword(passwordEncoder.encode(adminSignUpRequest.getPassword()));
         return userRepository.save(user);
     }
 
     public boolean isUserAlreadyRegistered(String userEmail){
         try{
-           User user=userRepository.findByUserEmail(userEmail).orElseThrow(()-> new UserNotFoundException("User Not found"));
+           userRepository.findByUserEmail(userEmail).orElseThrow(()-> new UserNotFoundException("User Not found"));
         }catch (Exception E){
             return false;
         }
@@ -65,9 +68,10 @@ public class UserService {
         return userRepository.findByUserEmail(userEmail).orElseThrow(()->new UserNotFoundException("User not found with email "+userEmail));
     }
 
-    public void isUserAdmin(String userEmail){
+    public User isUserAdmin(String userEmail){
         User user = findUserByEmail(userEmail);
         if(!user.getRole().equals("ADMIN")) throw new RuntimeException("You are not authorized to perform this task");
+        return user;
     }
 
     public String getUserNameFormEmail(String userEmail){
@@ -94,5 +98,13 @@ public class UserService {
         previousAddress.add(address);
         user.setAddresses(previousAddress);
         userRepository.save(user);
+    }
+
+    public void isAdminCanCreateAdmin(User user) throws AccessDeniedException {
+        if(!user.getCanCreateAdmin()) throw new AccessDeniedException("You don't have permission to create admin.");
+    }
+
+    public List<User> getAllCreatedAdmins(User user){
+        return userRepository.getOtherAdminCreatedByCurrentAdmin(user.getUserEmail());
     }
 }
