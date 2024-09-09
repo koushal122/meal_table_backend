@@ -28,8 +28,8 @@ public class MealTableApplication implements WebMvcConfigurer {
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**")
-				.allowedMethods("*")
-				.allowedOrigins("http://localhost:3000")
+				.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+				.allowedOrigins("http://mealtableui.s3-website.ap-south-1.amazonaws.com")
 				.allowedHeaders("*")
 				.allowCredentials(true);
 
@@ -38,7 +38,7 @@ public class MealTableApplication implements WebMvcConfigurer {
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/images/**")
-				.addResourceLocations("file:images/");
+				.addResourceLocations("file:/home/ec2-user/images/");
 	}
 
 
